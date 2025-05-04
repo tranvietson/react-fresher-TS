@@ -4,6 +4,7 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
+import { App } from "antd";
 
 import BookPage from "pages/client/book";
 import AboutPage from "pages/client/about";
@@ -11,6 +12,7 @@ import LoginPage from "pages/auth/login";
 import RegisterPage from "pages/auth/register";
 import Layout from "src/layout";
 import 'styles/global.scss';
+import HomePage from "./pages/client/home";
 
 
 const router = createBrowserRouter([
@@ -19,6 +21,10 @@ const router = createBrowserRouter([
     element: <Layout />
     ,
     children: [
+      {
+        index: true,
+        element: <HomePage />
+      },
       {
         path: "/book",
         element: <BookPage />
@@ -36,13 +42,15 @@ const router = createBrowserRouter([
   {
 
     path: "/register",
-    element: <RegisterPage />,
+    element: <RegisterPage />
   }
 
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <App>
+      <RouterProvider router={router} />
+    </App>
   </React.StrictMode>
 );
