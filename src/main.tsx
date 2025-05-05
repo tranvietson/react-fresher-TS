@@ -13,6 +13,7 @@ import RegisterPage from "pages/auth/register";
 import Layout from "src/layout";
 import 'styles/global.scss';
 import HomePage from "./pages/client/home";
+import { AppProvider } from "components/context/app.context";
 
 
 const router = createBrowserRouter([
@@ -50,7 +51,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App>
-      <RouterProvider router={router} />
+      <AppProvider>
+        <RouterProvider router={router} />
+      </AppProvider>
     </App>
   </React.StrictMode>
 );

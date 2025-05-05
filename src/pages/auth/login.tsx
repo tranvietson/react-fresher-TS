@@ -5,11 +5,13 @@ import { Link } from "react-router-dom";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./login.scss";
+import { useCurrentApp } from '@/components/context/app.context';
 
 const LoginPage = () => {
     const [isSubmit, setIsSubmit] = useState<boolean>(false);
-    const { message } = App.useApp();
+    const { message, notification } = App.useApp();
     const navigate = useNavigate();
+    const { setIsAuthenticated, setUser } = useCurrentApp();
 
     interface FieldType {
         email: string;
@@ -26,11 +28,18 @@ const LoginPage = () => {
         const res = await loginAPI(email, password);
         console.log('>>>>>>>> check res from login:', res);
         if (res.data) {
+            setIsAuthenticated(true);
+            setUser(res.data.user);
             localStorage.setItem('access_token', res.data.access_token);
             message.success("Đăng nhập user thành công.");
             navigate("/");
         } else {
-            message.error(res.message);
+            notification.error({
+                message: "Có lỗi xảy ra",
+                description:
+                    res.message && Array.isArray(res.message) ? res.message[0] : res.message,
+                duration: 5
+            })
         }
 
         setIsSubmit(false);
