@@ -14,7 +14,7 @@ export const FetchAccountAPI = () => {
     const urlBackend = "/api/v1/auth/account";
     return axios.get<IBackendRes<IFetchData>>(urlBackend, {
         headers: {
-            delay: 3000
+            delay: 1000
         }
     })
 }
