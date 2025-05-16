@@ -1,27 +1,32 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom/client";
+
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import Layout from '@/layout';
 import {
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
-import { App } from "antd";
-
-import BookPage from "pages/client/book";
-import AboutPage from "pages/client/about";
-import LoginPage from "pages/auth/login";
-import RegisterPage from "pages/auth/register";
-import Layout from "src/layout";
-import 'styles/global.scss';
-import HomePage from "./pages/client/home";
-import { AppProvider } from "components/context/app.context";
-import ProtectedRoute from "@/pages/auth";
-
+import BookPage from 'pages/client/book';
+import AboutPage from 'pages/client/about';
+import 'styles/global.scss'
+import HomePage from 'pages/client/home';
+import { App, ConfigProvider } from 'antd';
+import { AppProvider } from 'components/context/app.context';
+import DashBoardPage from 'pages/admin/dashboard';
+import ManageBookPage from 'pages/admin/manage.book';
+import ManageOrderPage from 'pages/admin/manage.order';
+import ManageUserPage from 'pages/admin/manage.user';
+import LayoutAdmin from 'components/layout/layout.admin';
+import enUS from 'antd/locale/en_US';
+import viVN from 'antd/locale/vi_VN';
+import LoginPage from './pages/auth/login';
+import ProtectedRoute from './pages/auth';
+import RegisterPage from './pages/auth/register';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />
-    ,
+    element: <Layout />,
     children: [
       {
         index: true,
@@ -29,48 +34,88 @@ const router = createBrowserRouter([
       },
       {
         path: "/book",
-        element: <BookPage />
+        element: <BookPage />,
       },
       {
         path: "/about",
-        element: <AboutPage />
+        element: <AboutPage />,
       },
       {
         path: "/checkout",
         element: (
           <ProtectedRoute>
-            <div>Checkout Page</div>
+            <div>checkout page</div>
+          </ProtectedRoute>
+        ),
+      }
+    ]
+  },
+  {
+    path: "admin",
+    element: <LayoutAdmin />,
+    children: [
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <DashBoardPage />
           </ProtectedRoute>
         )
-      }
-      ,
+      },
+      {
+        path: "book",
+        element: (
+          <ProtectedRoute>
+            <ManageBookPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "order",
+        element: (
+          <ProtectedRoute>
+            <ManageOrderPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: "user",
+        element: (
+          <ProtectedRoute>
+            <ManageUserPage />
+          </ProtectedRoute>
+        ),
+      },
       {
         path: "/admin",
         element: (
           <ProtectedRoute>
-            <div>Admin Page</div>
+            <div>admin page</div>
           </ProtectedRoute>
-        )
-      }
-    ],
+        ),
+      },
+
+    ]
   },
   {
-    path: "/Login",
-    element: <LoginPage />
+    path: "/login",
+    element: <LoginPage />,
   },
   {
     path: "/register",
-    element: <RegisterPage />
-  }
+    element: <RegisterPage />,
+  },
 
 ]);
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
     <App>
       <AppProvider>
-        <RouterProvider router={router} />
+        <ConfigProvider locale={enUS}>
+          <RouterProvider router={router} />
+        </ConfigProvider>
       </AppProvider>
     </App>
-  </React.StrictMode>
-);
+  </StrictMode>,
+)
