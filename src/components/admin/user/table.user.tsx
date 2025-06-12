@@ -1,14 +1,18 @@
 
-import { getUsersAPI } from '@/services/api';
+
+import { deleteUserAPI, getUsersAPI } from '@/services/api';
 import { dateRangeValidate } from '@/services/helper';
 import { CloudUploadOutlined, DeleteTwoTone, EditTwoTone, ExportOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button } from 'antd';
+import { App, Button } from 'antd';
 import { useRef, useState } from 'react';
 import DetailUser from './detail.user';
 import CreateUser from './create.user';
 import ImportUser from './data/import.user';
+import { CSVLink } from "react-csv";
+import UpdateUser from './update.user';
+import { message, Popconfirm } from 'antd';
 
 type TSearch = {
     fullName: string;
@@ -32,6 +36,30 @@ const TableUser = () => {
     const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
     const [openModalImport, setOpenModalImport] = useState<boolean>(false);
 
+    const [currentDataTable, setCurrentDataTable] = useState<IUserTable[]>([]);
+
+    const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
+    const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
+
+    const [isDeleteUser, setIsDeleteUser] = useState<boolean>(false);
+    const { message, notification } = App.useApp();
+
+    const handleDeleteUser = async (_id: string) => {
+        setIsDeleteUser(true);
+        const res = await deleteUserAPI(_id);
+        if (res && res.data) {
+            message.success('Xoa user thanh cong');
+            refreshTable();
+        } else {
+            notification.error({
+                message: 'Da co loi xay ra',
+                description: res.message
+            })
+        }
+        setIsDeleteUser(false);
+    }
+
+
     const columns: ProColumns<IUserTable>[] = [
         {
             dataIndex: 'index',
@@ -40,12 +68,13 @@ const TableUser = () => {
         },
         {
             title: 'Id',
-            dataIndex: '_id',
+            // dataIndex: '_id',
             hideInSearch: true,
             render(dom, entity, index, action, schema) {
                 return (
                     <a
                         onClick={() => {
+                            // console.log(">>>>>check entity:", entity);
                             setDataViewDetail(entity);
                             setOpenViewDetail(true);
                         }}
@@ -85,11 +114,30 @@ const TableUser = () => {
                         <EditTwoTone
                             twoToneColor="#f57800"
                             style={{ cursor: "pointer", marginRight: 15 }}
+                            onClick={() => {
+                                setDataUpdate(entity);
+                                setOpenModalUpdate(true);
+                            }}
                         />
-                        <DeleteTwoTone
-                            twoToneColor="#ff4d4f"
-                            style={{ cursor: "pointer" }}
-                        />
+
+                        <Popconfirm
+                            title="Xac nhan xoa user"
+                            description="Ban co chac chan muon xoa user nay ?"
+                            onConfirm={() => handleDeleteUser(entity._id)}
+                            okText="xac nhan"
+                            cancelText="Huy"
+                            okButtonProps={{ loading: isDeleteUser }}
+                        >
+                            <span style={{ cursor: "pointer", marginLeft: 20 }}>
+                                <DeleteTwoTone
+                                    twoToneColor="#ff4d4f"
+                                    style={{ cursor: "pointer" }}
+                                />
+                            </span>
+
+                        </Popconfirm>
+
+
                     </>
 
                 )
@@ -128,16 +176,16 @@ const TableUser = () => {
                     }
 
                     //default
-                    query += `&sort=-createdAt`;
 
                     if (sort && sort.createdAt) {
                         query += `&sort=${sort.createdAt === "ascend" ? "createdAt" : "-createdAt"}`
-                    }
+                    } else query += `&sort=-createdAt`;
+
 
                     const res = await getUsersAPI(query);
                     if (res.data) {
                         setMeta(res.data.meta);
-                        console.log('>>>>>check value result:', res.data.result);
+                        setCurrentDataTable(res.data?.result ?? [])
                     }
                     return {
                         data: res.data?.result,
@@ -164,7 +212,12 @@ const TableUser = () => {
                         icon={<ExportOutlined />}
                         type="primary"
                     >
-                        Export
+                        <CSVLink
+                            data={currentDataTable}
+                            filename='export-user.csv'
+                        >
+                            Export
+                        </CSVLink>
                     </Button>,
 
                     <Button
@@ -174,6 +227,7 @@ const TableUser = () => {
                     >
                         Import
                     </Button>,
+
                     <Button
                         key="button"
                         icon={<PlusOutlined />}
@@ -203,6 +257,15 @@ const TableUser = () => {
             <ImportUser
                 openModalImport={openModalImport}
                 setOpenModalImport={setOpenModalImport}
+                refreshTable={refreshTable}
+            />
+
+            <UpdateUser
+                openModalUpdate={openModalUpdate}
+                setOpenModalUpdate={setOpenModalUpdate}
+                refreshTable={refreshTable}
+                setDataUpdate={setDataUpdate}
+                dataUpdate={dataUpdate}
             />
         </>
     );

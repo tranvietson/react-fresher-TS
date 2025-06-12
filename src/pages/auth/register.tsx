@@ -1,11 +1,11 @@
 
-import { loginAPI, RegisterAPI } from '@/services/api';
 import type { FormProps } from 'antd';
 import { App, Button, Divider, Form, Input } from 'antd';
 import { Link } from "react-router-dom";
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./register.scss";
+import { registerAPI } from '@/services/api';
 
 
 
@@ -27,8 +27,8 @@ const RegisterPage = () => {
 
         // const res = await loginAPI("admin", "123456");
         const { fullName, email, password, phone } = values;
-        // console.log(">>>>>>check values:", username, email, password, phone);
-        const res = await RegisterAPI(fullName, email, password, phone);
+        console.log(">>>>>>check values:", fullName, email, password, phone);
+        const res = await registerAPI(fullName, email, password, phone);
         if (res.data) {
             message.success("Đăng ký user thành công.");
             navigate("/login");

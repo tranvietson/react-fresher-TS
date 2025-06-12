@@ -1,4 +1,5 @@
-import { FetchAccountAPI } from "@/services/api";
+
+import { fetchAccountAPI } from "@/services/api";
 import { createContext, useContext, useEffect, useState } from "react";
 import PacmanLoader from "react-spinners/PacmanLoader";
 
@@ -24,7 +25,7 @@ export const AppProvider = (props: TProps) => {
 
     useEffect(() => {
         const fetchAccount = async () => {
-            const res = await FetchAccountAPI();
+            const res = await fetchAccountAPI();
             if (res.data) {
                 setUser(res.data.user);
                 setIsAuthenticated(true);
@@ -74,4 +75,3 @@ export const useCurrentApp = () => {
 
     return currentAppContext;
 };
-

@@ -1,18 +1,23 @@
-import axios from "services/axios.customize";
+
+import axios from 'services/axios.customize';
 
 export const loginAPI = (username: string, password: string) => {
     const urlBackend = "/api/v1/auth/login";
-    return axios.post<IBackendRes<ILogin>>(urlBackend, { username, password })
+    return axios.post<IBackendRes<ILogin>>(urlBackend, { username, password }, {
+        headers: {
+            delay: 3000
+        }
+    })
 }
 
-export const RegisterAPI = (fullName: string, email: string, password: string, phone: number) => {
+export const registerAPI = (fullName: string, email: string, password: string, phone: number) => {
     const urlBackend = "/api/v1/user/register";
     return axios.post<IBackendRes<IRegister>>(urlBackend, { fullName, email, password, phone })
 }
 
-export const FetchAccountAPI = () => {
+export const fetchAccountAPI = () => {
     const urlBackend = "/api/v1/auth/account";
-    return axios.get<IBackendRes<IFetchData>>(urlBackend, {
+    return axios.get<IBackendRes<IFetchAccount>>(urlBackend, {
         headers: {
             delay: 1000
         }
@@ -21,13 +26,8 @@ export const FetchAccountAPI = () => {
 
 export const logoutAPI = () => {
     const urlBackend = "/api/v1/auth/logout";
-    return axios.post<IBackendRes<ILogin>>(urlBackend)
+    return axios.post<IBackendRes<IRegister>>(urlBackend)
 }
-
-// export const getUsersAPI = (current: number, pageSize: number) => {
-//     const urlBackend = `/api/v1/user?current=${current}&pageSize=${pageSize}`;
-//     return axios.get<IBackendRes<IModelPaginate<IUserTable>>>(urlBackend)
-// }
 
 export const getUsersAPI = (query: string) => {
     const urlBackend = `/api/v1/user?${query}`;
@@ -40,6 +40,28 @@ export const createUserAPI = (fullName: string, email: string,
     return axios.post<IBackendRes<IRegister>>(urlBackend,
         { fullName, email, password, phone })
 }
+
+export const bulkCreateUserAPI = (hoidanit: {
+    fullName: string;
+    password: string;
+    email: string;
+    phone: string;
+}[]) => {
+    const urlBackend = "/api/v1/user/bulk-create";
+    return axios.post<IBackendRes<IResponseImport>>(urlBackend, hoidanit)
+}
+
+export const updateUserAPI = (_id: string, fullName: string, phone: string) => {
+    const urlBackend = "/api/v1/user";
+    return axios.put<IBackendRes<IRegister>>(urlBackend,
+        { _id, fullName, phone })
+}
+
+export const deleteUserAPI = (_id: string) => {
+    const urlBackend = `/api/v1/user/${_id}`;
+    return axios.delete<IBackendRes<IRegister>>(urlBackend)
+}
+
 
 
 

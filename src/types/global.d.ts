@@ -1,5 +1,6 @@
 
 export { };
+
 declare global {
     interface IBackendRes<T> {
         error?: string | string[];
@@ -7,6 +8,7 @@ declare global {
         statusCode: number | string;
         data?: T;
     }
+
     interface IModelPaginate<T> {
         meta: {
             current: number;
@@ -16,48 +18,54 @@ declare global {
         },
         result: T[]
     }
+
     interface ILogin {
         access_token: string;
         user: {
             email: string;
             phone: string;
             fullName: string;
-            role: string,
-            avatar: string,
-            id: string,
-
+            role: string;
+            avatar: string;
+            id: string;
         }
     }
 
     interface IRegister {
-        _id: string,
-        email: string,
-        fullName: string
+        _id: string;
+        email: string;
+        fullName: string;
     }
 
     interface IUser {
         email: string;
         phone: string;
         fullName: string;
-        role: string,
-        avatar: string,
-        id: string,
+        role: string;
+        avatar: string;
+        id: string;
     }
 
-    interface IFetchData {
-        user: IUser;
+    interface IFetchAccount {
+        user: IUser
     }
 
     interface IUserTable {
-        _id: string,
-        fullName: string,
-        email: string,
-        phone: string,
-        role: string,
-        avatar: string,
-        isActive: boolean,
-        type: string,
-        createdAt: Date,
-        updatedAt: Date,
+        _id: string;
+        fullName: string;
+        email: string;
+        phone: string;
+        role: string;
+        avatar: string;
+        isActive: boolean;
+        createdAt: Date;
+        updatedAt: Date;
     }
+
+    interface IResponseImport {
+        countSuccess: number;
+        countError: number;
+        detail: any;
+    }
+
 }

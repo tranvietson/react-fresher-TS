@@ -6,12 +6,14 @@ import type { UploadProps } from 'antd';
 import { useState } from "react";
 import Exceljs from 'exceljs';
 import { Buffer } from 'buffer';
-
+import { bulkCreateUserAPI } from "@/services/api";
+import templateFile from "assets/template/user.xlsx?url";
 const { Dragger } = Upload;
 
 interface IProps {
     openModalImport: boolean;
     setOpenModalImport: (v: boolean) => void;
+    refreshTable: () => void;
 }
 
 interface IDataImport {
@@ -21,10 +23,11 @@ interface IDataImport {
 }
 
 const ImportUser = (props: IProps) => {
-    const { setOpenModalImport, openModalImport } = props;
+    const { setOpenModalImport, openModalImport, refreshTable } = props;
 
-    const { message } = App.useApp();
+    const { message, notification } = App.useApp();
     const [dataImport, setDataImport] = useState<IDataImport[]>([]);
+    const [isSubmit, setIsSubmit] = useState<boolean>(false);
 
     const propsUpload: UploadProps = {
         name: 'file',
@@ -43,6 +46,7 @@ const ImportUser = (props: IProps) => {
 
         async onChange(info) {
             const { status } = info.file;
+            console.log('gia tri info:', info)
             if (status !== 'uploading') {
                 console.log(info.file, info.fileList);
             }
@@ -79,9 +83,16 @@ const ImportUser = (props: IProps) => {
 
                     });
 
+                    console.log(">>>>>> check jsonData first:", jsonData);
+
+                    jsonData = jsonData.map((item, index) => {
+                        return { ...item, id: index + 1 }
+                    })
                     setDataImport(jsonData)
 
+                    console.log(">>>>>>>> check jsonData second:", jsonData);
                 }
+
 
             } else if (status === 'error') {
                 message.error(`${info.file.name} file upload failed.`);
@@ -92,19 +103,41 @@ const ImportUser = (props: IProps) => {
         },
     };
 
+    const handleImport = async () => {
+        setIsSubmit(true);
+        const dataSubmit = dataImport.map(item => ({
+            fullName: item.fullName,
+            email: item.email,
+            phone: item.phone,
+            password: import.meta.env.VITE_USER_CREATE_DEFAULT_PASSWORD
+        }))
+        const res = await bulkCreateUserAPI(dataSubmit);
+        if (res.data) {
+            notification.success({
+                message: "Bulk Create Users",
+                description: `Success = ${res.data.countSuccess}. Error = ${res.data.countError}`
+            })
+        }
+        setIsSubmit(false);
+        setOpenModalImport(false);
+        setDataImport([]);
+        refreshTable();
+    }
+
     return (
         <>
             <Modal title="Import data user"
                 width={"50vw"}
                 open={openModalImport}
-                onOk={() => setOpenModalImport(false)}
+                onOk={() => handleImport()}
                 onCancel={() => {
                     setOpenModalImport(false);
                     setDataImport([]);
                 }}
                 okText="Import data"
                 okButtonProps={{
-                    disabled: dataImport.length > 0 ? false : true
+                    disabled: dataImport.length > 0 ? false : true,
+                    loading: isSubmit
                 }}
                 //do not close when click outside
                 maskClosable={false}
@@ -116,11 +149,21 @@ const ImportUser = (props: IProps) => {
                     </p>
                     <p className="ant-upload-text">Click or drag file to this area to upload</p>
                     <p className="ant-upload-hint">
-                        Support for a single upload. Only accept .csv, .xls, .xlsx
+                        Support for a single upload. Only accept .csv, .xls, .xlsx . or
+                        &nbsp;
+                        <a
+                            onClick={e => e.stopPropagation()}
+                            href={templateFile}
+                            download
+                        >
+                            Download Sample File
+                        </a>
                     </p>
+
                 </Dragger>
                 <div style={{ paddingTop: 20 }}>
                     <Table
+                        rowKey={"id"}
                         title={() => <span>Dữ liệu upload:</span>}
                         dataSource={dataImport}
                         columns={[
