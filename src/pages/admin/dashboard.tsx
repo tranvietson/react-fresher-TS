@@ -2,7 +2,7 @@
 const DashBoardPage = () => {
     return (
         <div>
-            DashBoardPage
+            DashBoardPage  Update
         </div>
     )
 }
